@@ -1,5 +1,5 @@
 // +k8s:deepcopy-gen=package
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=foo.com
+// +groupName=debuger
 
 package v1
