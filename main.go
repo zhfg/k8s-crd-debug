@@ -29,6 +29,7 @@ import (
 
 	clientset "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned"
 	informers "github.com/zhfg/k8s-crd-debug/pkg/client/informers/externalversions"
+	"github.com/zhfg/k8s-crd-debug/pkg/signals"
 )
 
 var (
