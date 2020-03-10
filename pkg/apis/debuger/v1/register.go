@@ -8,7 +8,7 @@ import (
 
 // Define your schema name and the version
 var SchemeGroupVersion = schema.GroupVersion{
-	Group:   "foo.com",
+	Group:   "debuger",
 	Version: "v1",
 }
 
@@ -34,8 +34,8 @@ func Resource(resource string) schema.GroupResource {
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(
 		SchemeGroupVersion,
-		&HelloType{},
-		&HelloTypeList{},
+		&DebugerType{},
+		&DebugerTypeList{},
 	)
 
 	scheme.AddKnownTypes(
