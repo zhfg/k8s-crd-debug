@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	debugerv1 "github.com/zhfg/k8s-crd-debug/pkg/apis/debuger/v1"
+	k8sv1 "github.com/zhfg/k8s-crd-debug/pkg/apis/debuger/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,7 +31,7 @@ var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 var parameterCodec = runtime.NewParameterCodec(scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
-	debugerv1.AddToScheme,
+	k8sv1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition

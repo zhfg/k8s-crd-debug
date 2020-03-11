@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned"
-	debugerv1 "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned/typed/debuger/v1"
-	fakedebugerv1 "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned/typed/debuger/v1/fake"
+	k8sv1 "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned/typed/debuger/v1"
+	fakek8sv1 "github.com/zhfg/k8s-crd-debug/pkg/client/clientset/versioned/typed/debuger/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -76,7 +76,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// DebugerV1 retrieves the DebugerV1Client
-func (c *Clientset) DebugerV1() debugerv1.DebugerV1Interface {
-	return &fakedebugerv1.FakeDebugerV1{Fake: &c.Fake}
+// K8sV1 retrieves the K8sV1Client
+func (c *Clientset) K8sV1() k8sv1.K8sV1Interface {
+	return &fakek8sv1.FakeK8sV1{Fake: &c.Fake}
 }

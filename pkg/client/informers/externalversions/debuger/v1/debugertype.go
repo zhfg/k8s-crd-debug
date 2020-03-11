@@ -62,13 +62,13 @@ func NewFilteredDebugerTypeInformer(client versioned.Interface, namespace string
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.DebugerV1().DebugerTypes(namespace).List(context.TODO(), options)
+				return client.K8sV1().DebugerTypes(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.DebugerV1().DebugerTypes(namespace).Watch(context.TODO(), options)
+				return client.K8sV1().DebugerTypes(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&debugerv1.DebugerType{},

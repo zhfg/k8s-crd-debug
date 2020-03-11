@@ -32,13 +32,13 @@ import (
 
 // FakeDebugerTypes implements DebugerTypeInterface
 type FakeDebugerTypes struct {
-	Fake *FakeDebugerV1
+	Fake *FakeK8sV1
 	ns   string
 }
 
-var debugertypesResource = schema.GroupVersionResource{Group: "debuger", Version: "v1", Resource: "debugertypes"}
+var debugertypesResource = schema.GroupVersionResource{Group: "k8s.family-zhang.com", Version: "v1", Resource: "debugertypes"}
 
-var debugertypesKind = schema.GroupVersionKind{Group: "debuger", Version: "v1", Kind: "DebugerType"}
+var debugertypesKind = schema.GroupVersionKind{Group: "k8s.family-zhang.com", Version: "v1", Kind: "DebugerType"}
 
 // Get takes name of the debugerType, and returns the corresponding debugerType object, and an error if there is any.
 func (c *FakeDebugerTypes) Get(ctx context.Context, name string, options v1.GetOptions) (result *debugerv1.DebugerType, err error) {

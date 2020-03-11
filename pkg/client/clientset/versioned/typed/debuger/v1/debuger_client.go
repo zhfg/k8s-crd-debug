@@ -24,22 +24,22 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-type DebugerV1Interface interface {
+type K8sV1Interface interface {
 	RESTClient() rest.Interface
 	DebugerTypesGetter
 }
 
-// DebugerV1Client is used to interact with features provided by the debuger group.
-type DebugerV1Client struct {
+// K8sV1Client is used to interact with features provided by the k8s.family-zhang.com group.
+type K8sV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *DebugerV1Client) DebugerTypes(namespace string) DebugerTypeInterface {
+func (c *K8sV1Client) DebugerTypes(namespace string) DebugerTypeInterface {
 	return newDebugerTypes(c, namespace)
 }
 
-// NewForConfig creates a new DebugerV1Client for the given config.
-func NewForConfig(c *rest.Config) (*DebugerV1Client, error) {
+// NewForConfig creates a new K8sV1Client for the given config.
+func NewForConfig(c *rest.Config) (*K8sV1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -48,12 +48,12 @@ func NewForConfig(c *rest.Config) (*DebugerV1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DebugerV1Client{client}, nil
+	return &K8sV1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new DebugerV1Client for the given config and
+// NewForConfigOrDie creates a new K8sV1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *DebugerV1Client {
+func NewForConfigOrDie(c *rest.Config) *K8sV1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -61,9 +61,9 @@ func NewForConfigOrDie(c *rest.Config) *DebugerV1Client {
 	return client
 }
 
-// New creates a new DebugerV1Client for the given RESTClient.
-func New(c rest.Interface) *DebugerV1Client {
-	return &DebugerV1Client{c}
+// New creates a new K8sV1Client for the given RESTClient.
+func New(c rest.Interface) *K8sV1Client {
+	return &K8sV1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -81,7 +81,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *DebugerV1Client) RESTClient() rest.Interface {
+func (c *K8sV1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

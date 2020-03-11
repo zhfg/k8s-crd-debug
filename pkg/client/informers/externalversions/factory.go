@@ -172,9 +172,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Debuger() debuger.Interface
+	K8s() debuger.Interface
 }
 
-func (f *sharedInformerFactory) Debuger() debuger.Interface {
+func (f *sharedInformerFactory) K8s() debuger.Interface {
 	return debuger.New(f, f.namespace, f.tweakListOptions)
 }
