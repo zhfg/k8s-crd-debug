@@ -1,4 +1,4 @@
-module debugger
+module github.com/zhfg/k8s-crd-debug
 
 go 1.13
 
