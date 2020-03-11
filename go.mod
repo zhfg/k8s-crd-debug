@@ -7,7 +7,6 @@ replace k8s.io/client-go => github.com/kubernetes/client-go v0.0.0-2020022804330
 require (
 	github.com/golang/protobuf v1.3.4 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
-	github.com/zhfg/k8s-crd-debug v0.0.0-20200310160930-4e41b8b50213
 	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
