@@ -4,11 +4,11 @@ Debugger是一个Kubernetes CRD项目，通过CRD controller 实现了向CRD中�
 
 # 使用方法
 ** 新建CRD **
-<p>apiVersion: k8s.family-zhang.com/v1
+<code>apiVersion: k8s.family-zhang.com/v1
 kind: DebugerType
 metadata: 
   name: superman-hello1
   namespace: test
 spec:
   deploymentName: "nginx"
-  shareVolumeName: "share-data"</p>
+  shareVolumeName: "share-data"</code>
