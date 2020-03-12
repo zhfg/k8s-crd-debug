@@ -5,8 +5,7 @@ Debugger是一个Kubernetes CRD项目，通过CRD controller 实现了向CRD中�
 # 使用方法
 ** 新建CRD **
 
-<p>
-<code>
+```
 apiVersion: k8s.family-zhang.com/v1
 kind: DebugerType
 metadata: 
@@ -15,5 +14,4 @@ metadata:
 spec:
   deploymentName: "nginx"
   shareVolumeName: "share-data"
-</code>
-</p>
+```
