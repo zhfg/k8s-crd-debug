@@ -35,7 +35,7 @@ spec:
 ```
 
 # 验证
-+ **在test namespaces下新建一个名称nginx的deployment
++ **在test namespaces下新建一个名称nginx的deployment**
 ```
 apiVersion: apps/v1
 kind: Deployment
@@ -74,8 +74,8 @@ spec:
       - emptyDir: {}
         name: share-data
 ```
-+ **查看其pod中的container的数量
++ **查看其pod中的container的数量**
 ```
 
 ```
-+ **稍等30秒，再次查看其Pod中的container的数量
++ **稍等30秒，再次查看其Pod中的container的数量**
