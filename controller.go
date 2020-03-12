@@ -217,8 +217,8 @@ func (c *Controller) syncHandler(key string) error {
 		utilruntime.HandleError(fmt.Errorf("%s: deployment name must be specified", key))
 		return nil
 	}
-
-	shareVolume := Debugger.ShareVolumeName
+	// check if share volume not provided
+	shareVolume := Debugger.Spec.ShareVolumeName
 	if shareVolume == "" {
 		utilruntime.HandleError(fmt.Errorf("%s: share data volume name must be specified", key))
 		return nil
@@ -231,7 +231,7 @@ func (c *Controller) syncHandler(key string) error {
 		return nil
 		// deployment, err = c.kubeclientset.AppsV1().Deployments(Debugger.Namespace).Create(newDeployment(Debugger), metav1.CreateOptions{})
 	}
-	klog.Info(deployment, err)
+	klog.Warning(deployment, err)
 	// return if do not have shared volume
 
 	if !checkVolumeExisting(deployment, shareVolume) {
@@ -306,7 +306,7 @@ func checkVolumeExisting(deployment *appsv1.Deployment, sharedVolumeName string)
 func checkSidecarContainerExisting(deployment *appsv1.Deployment) bool {
 	containers := deployment.Spec.Template.Spec.Containers
 	for _, con := range containers {
-		if con.Name != SidecarContainerName {
+		if con.Name == SidecarContainerName {
 			return true
 		}
 	}
@@ -424,7 +424,7 @@ func updateDeployment(deployment *appsv1.Deployment) *appsv1.Deployment {
 
 	// attach share-data to sidecar container
 	shareDataVolumeMount := corev1.VolumeMount{}
-	shareDataVolumeMount.Name = "share-data"
+	shareDataVolumeMount.Name = ContainerShareVolumeName
 	shareDataVolumeMount.MountPath = "/data/"
 
 	sidecarContainer.VolumeMounts = append(sidecarContainer.VolumeMounts, shareDataVolumeMount)
