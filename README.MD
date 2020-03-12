@@ -6,6 +6,9 @@ Debugger是一个Kubernetes CRD项目，通过CRD controller 实现了向CRD中�
 代码编写过程中参考了
 https://itnext.io/how-to-generate-client-codes-for-kubernetes-custom-resource-definitions-crd-b4b9907769ba
 
+问题及改善：
++ 目前此程序在集群外部测试成功，下一步计划完成in-cluster的配置文件读取测试
++ 目前此程序是namespace级别的，下一步计划实现全局扫描和配置
 
 # 使用方法
 **运行**
