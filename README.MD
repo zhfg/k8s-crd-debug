@@ -85,11 +85,11 @@ spec:
 ```
 [root@kube01 ~]# kubectl get pods -n test
 NAME                     READY   STATUS    RESTARTS   AGE
-nginx-58f5b7bd88-z777x   **1/1**     Running   0          5h8m
+nginx-58f5b7bd88-z777x   1/1     Running   0          5h8m
 ```
 + **稍等30秒，再次查看其Pod中的container的数量**
 ```
 [root@kube01 ~]# kubectl get pods -n test
 NAME                     READY   STATUS    RESTARTS   AGE
-nginx-58f5b7bd88-z777x   **2/2**     Running   0          5h8m
+nginx-58f5b7bd88-z777x   2/2     Running   0          5h8m
 ```
