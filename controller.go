@@ -6,6 +6,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	appsinformers "k8s.io/client-go/informers/apps/v1"
@@ -36,6 +37,10 @@ const (
 	MessageResourceExists = "Resource %q already exists and is not managed by Debugger"
 
 	MessageResourceSynced = "Debugger synced successfully"
+
+	SidecarImageName         = "theiaide/theia:0.16.1"
+	SidecarContainerName     = "sidecar-theia"
+	ContainerShareVolumeName = "share-data"
 )
 
 // Controller is the controller implementation for Debugger resources
@@ -181,43 +186,71 @@ func (c *Controller) processNextWorkItem() bool {
 }
 
 func (c *Controller) syncHandler(key string) error {
-	return nil
-	// // Convert the namespace/name string into a distinct namespace and name
-	// namespace, name, err := cache.SplitMetaNamespaceKey(key)
-	// if err != nil {
-	// 	utilruntime.HandleError(fmt.Errorf("invalid resource key: %s", key))
-	// 	return nil
-	// }
+	klog.Info(key)
+	// Convert the namespace/name string into a distinct namespace and name
+	namespace, name, err := cache.SplitMetaNamespaceKey(key)
+	if err != nil {
+		utilruntime.HandleError(fmt.Errorf("invalid resource key: %s", key))
+		return nil
+	}
+	klog.Info(fmt.Sprintf("Get a new Debugger, namespaces is %s and name is %s", namespace, name))
 
-	// // Get the Debugger resource with this namespace/name
-	// Debugger, err := c.debuggerLister.DebugerTypes(namespace).Get(name)
+	//Get the Debugger resource with this namespace/name
+	Debugger, err := c.debuggerLister.DebugerTypes(namespace).Get(name)
 
-	// if err != nil {
-	// 	// The Debugger resource may no longer exist, in which case we stop
-	// 	// processing.
-	// 	if errors.IsNotFound(err) {
-	// 		utilruntime.HandleError(fmt.Errorf("Debugger '%s' in work queue no longer exists", key))
-	// 		return nil
-	// 	}
+	if err != nil {
+		// The Debugger resource may no longer exist, in which case we stop
+		// processing.
+		if errors.IsNotFound(err) {
+			utilruntime.HandleError(fmt.Errorf("Debugger '%s' in work queue no longer exists", key))
+			return nil
+		}
 
-	// 	return err
-	// }
+		return err
+	}
 
-	// deploymentName := Debugger.Spec.DeployName
-	// if deploymentName == "" {
-	// 	// We choose to absorb the error here as the worker would requeue the
-	// 	// resource otherwise. Instead, the next time the resource is updated
-	// 	// the resource will be queued again.
-	// 	utilruntime.HandleError(fmt.Errorf("%s: deployment name must be specified", key))
-	// 	return nil
-	// }
+	deploymentName := Debugger.Spec.DeploymentName
+	if deploymentName == "" {
+		// We choose to absorb the error here as the worker would requeue the
+		// resource otherwise. Instead, the next time the resource is updated
+		// the resource will be queued again.
+		utilruntime.HandleError(fmt.Errorf("%s: deployment name must be specified", key))
+		return nil
+	}
 
-	// // Get the deployment with the name specified in Debugger.spec
-	// deployment, err := c.deploymentsLister.Deployments(Debugger.Namespace).Get(deploymentName)
-	// // If the resource doesn't exist, we'll create it
-	// if errors.IsNotFound(err) {
-	// 	deployment, err = c.kubeclientset.AppsV1().Deployments(Debugger.Namespace).Create(newDeployment(Debugger), metav1.CreateOptions{})
-	// }
+	shareVolume := Debugger.ShareVolumeName
+	if shareVolume == "" {
+		utilruntime.HandleError(fmt.Errorf("%s: share data volume name must be specified", key))
+		return nil
+	}
+
+	deployment, err := c.deploymentsLister.Deployments(Debugger.Namespace).Get(deploymentName)
+	// If the resource doesn't exist, we'll create it
+	if errors.IsNotFound(err) {
+		utilruntime.HandleError(fmt.Errorf("could not find deployment %s/%s, maybe it is not existing", Debugger.Namespace, deploymentName))
+		return nil
+		// deployment, err = c.kubeclientset.AppsV1().Deployments(Debugger.Namespace).Create(newDeployment(Debugger), metav1.CreateOptions{})
+	}
+	klog.Info(deployment, err)
+	// return if do not have shared volume
+
+	if !checkVolumeExisting(deployment, shareVolume) {
+		utilruntime.HandleError(fmt.Errorf("deployment %s/%s do not have existed share volume", Debugger.Namespace, deploymentName))
+		return nil
+	}
+	if checkSidecarContainerExisting(deployment) {
+		utilruntime.HandleError(fmt.Errorf("it seems the deployment %s/%s have a sidecar named %s already, skipping", deployment.GetNamespace(), deploymentName, SidecarContainerName))
+		return nil
+	}
+	err = c.attachSidecar(deployment)
+	if err != nil {
+		utilruntime.HandleError(fmt.Errorf("attach sidecar to deployment %s failed", key))
+		return nil
+	}
+	err = c.updateDebuggerStatus(Debugger, deployment)
+	if err != nil {
+		return err
+	}
 
 	// // If an error occurs during Get/Create, we'll requeue the item so we can
 	// // attempt processing again later. This could have been caused by a
@@ -239,7 +272,7 @@ func (c *Controller) syncHandler(key string) error {
 	// // should update the Deployment resource.
 	// if Debugger.Spec.Replicas != nil && *Debugger.Spec.Replicas != *deployment.Spec.Replicas {
 	// 	klog.V(4).Infof("Debugger %s replicas: %d, deployment replicas: %d", name, *Debugger.Spec.Replicas, *deployment.Spec.Replicas)
-	// 	deployment, err = c.kubeclientset.AppsV1().Deployments(Debugger.Namespace).Update(context.TODO(), newDeployment(Debugger), metav1.UpdateOptions{})
+	// deployment, err = c.kubeclientset.AppsV1().Deployments(Debugger.Namespace).Update(context.TODO(), newDeployment(Debugger), metav1.UpdateOptions{})
 	// }
 
 	// // If an error occurs during Update, we'll requeue the item so we can
@@ -257,9 +290,59 @@ func (c *Controller) syncHandler(key string) error {
 	// }
 
 	// c.recorder.Event(Debugger, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
-	// return nil
+	return nil
 }
 
+func checkVolumeExisting(deployment *appsv1.Deployment, sharedVolumeName string) bool {
+	sharedDataVolumes := deployment.Spec.Template.Spec.Volumes
+	for _, volume := range sharedDataVolumes {
+		if volume.Name == sharedVolumeName {
+			return true
+		}
+	}
+	return false
+}
+
+func checkSidecarContainerExisting(deployment *appsv1.Deployment) bool {
+	containers := deployment.Spec.Template.Spec.Containers
+	for _, con := range containers {
+		if con.Name != SidecarContainerName {
+			return true
+		}
+	}
+	return false
+}
+
+func checkContainerHasShareVolume(deployment *appsv1.Deployment) bool {
+	containers := deployment.Spec.Template.Spec.Containers
+	for _, con := range containers {
+		if con.Name != SidecarContainerName {
+			volumeMounts := con.VolumeMounts
+			for _, volumeMount := range volumeMounts {
+				if volumeMount.Name == ContainerShareVolumeName {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (c *Controller) attachSidecar(deployment *appsv1.Deployment) error {
+	klog.Info("Attaching Starting")
+	deploymentNamespace := deployment.GetNamespace()
+	// deploymentName := deployment.GetName()
+	newDeployment := updateDeployment(deployment)
+	deployment, err := c.kubeclientset.AppsV1().Deployments(deploymentNamespace).Update(newDeployment)
+	if err != nil {
+		klog.Error(fmt.Sprintf("Can not update deployment %s-%s, error is %s", deploymentNamespace, deployment.GetName(), err))
+		return err
+	}
+
+	// Get shared volume from deployment
+	klog.Info("Attached")
+	return nil
+}
 func (c *Controller) updateDebuggerStatus(Debugger *debugv1.DebugerType, deployment *appsv1.Deployment) error {
 	// // NEVER modify objects from the store. It's a read-only, local cache.
 	// // You can use DeepCopy() to make a deep copy of original object and modify this copy
@@ -270,7 +353,7 @@ func (c *Controller) updateDebuggerStatus(Debugger *debugv1.DebugerType, deploym
 	// // we must use Update instead of UpdateStatus to update the Status block of the Debugger resource.
 	// // UpdateStatus will not allow changes to the Spec of the resource,
 	// // which is ideal for ensuring nothing other than resource status has been updated.
-	// _, err := c.debuggerclientset.DebugerV1.DebugerTypes(Debugger.Namespace).Update(DebuggerCopy, metav1.UpdateOptions{})
+	// _, err := c.debuggerclientset.DebugerV1.DebugerTypes(Debugger.Message).Update(DebuggerCopy, metav1.UpdateOptions{})
 	// return err
 	return nil
 }
@@ -328,41 +411,24 @@ func (c *Controller) handleObject(obj interface{}) {
 	// }
 }
 
-// newDeployment creates a new Deployment for a Debugger resource. It also sets
+// updateDeployment creates a update Deployment for a Debugger resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Debugger resource that 'owns' it.
-func newDeployment(Debugger *debugv1.DebugerType) *appsv1.Deployment {
-	// labels := map[string]string{
-	// 	"app":        "nginx",
-	// 	"controller": Debugger.Name,
-	// }
-	// return &appsv1.Deployment{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      Debugger.Spec.DeployName,
-	// 		Namespace: Debugger.Namespace,
-	// 		OwnerReferences: []metav1.OwnerReference{
-	// 			*metav1.NewControllerRef(Debugger, debugv1.SchemeGroupVersion.WithKind("Debugger")),
-	// 		},
-	// 	},
-	// 	Spec: appsv1.DeploymentSpec{
-	// 		Replicas: Debugger.Spec.Replicas,
-	// 		Selector: &metav1.LabelSelector{
-	// 			MatchLabels: labels,
-	// 		},
-	// 		Template: corev1.PodTemplateSpec{
-	// 			ObjectMeta: metav1.ObjectMeta{
-	// 				Labels: labels,
-	// 			},
-	// 			Spec: corev1.PodSpec{
-	// 				Containers: []corev1.Container{
-	// 					{
-	// 						Name:  "nginx",
-	// 						Image: "nginx:latest",
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// }
-	return nil
+func updateDeployment(deployment *appsv1.Deployment) *appsv1.Deployment {
+	sharedDataVolumes := deployment.Spec.Template.Spec.Volumes
+	klog.Info(sharedDataVolumes)
+	// Create a new container
+	sidecarContainer := corev1.Container{}
+	sidecarContainer.Name = SidecarContainerName
+	sidecarContainer.Image = SidecarImageName
+
+	// attach share-data to sidecar container
+	shareDataVolumeMount := corev1.VolumeMount{}
+	shareDataVolumeMount.Name = "share-data"
+	shareDataVolumeMount.MountPath = "/data/"
+
+	sidecarContainer.VolumeMounts = append(sidecarContainer.VolumeMounts, shareDataVolumeMount)
+	deployment.Spec.Template.Spec.Containers = append(deployment.Spec.Template.Spec.Containers, sidecarContainer)
+	klog.Info(deployment)
+	return deployment
 }

@@ -8,7 +8,7 @@ import (
 
 // Define your schema name and the version
 var SchemeGroupVersion = schema.GroupVersion{
-	Group:   "debuger",
+	Group:   "k8s.family-zhang.com",
 	Version: "v1",
 }
 

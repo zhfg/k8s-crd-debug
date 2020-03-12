@@ -72,7 +72,7 @@ func (c *debugerTypes) Get(ctx context.Context, name string, options metav1.GetO
 		Resource("debugertypes").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }
@@ -89,7 +89,7 @@ func (c *debugerTypes) List(ctx context.Context, opts metav1.ListOptions) (resul
 		Resource("debugertypes").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }
@@ -106,7 +106,7 @@ func (c *debugerTypes) Watch(ctx context.Context, opts metav1.ListOptions) (watc
 		Resource("debugertypes").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch(ctx)
+		Watch()
 }
 
 // Create takes the representation of a debugerType and creates it.  Returns the server's representation of the debugerType, and an error, if there is any.
@@ -117,7 +117,7 @@ func (c *debugerTypes) Create(ctx context.Context, debugerType *v1.DebugerType, 
 		Resource("debugertypes").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(debugerType).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }
@@ -131,7 +131,7 @@ func (c *debugerTypes) Update(ctx context.Context, debugerType *v1.DebugerType, 
 		Name(debugerType.Name).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(debugerType).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }
@@ -147,7 +147,7 @@ func (c *debugerTypes) UpdateStatus(ctx context.Context, debugerType *v1.Debuger
 		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(debugerType).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }
@@ -159,7 +159,7 @@ func (c *debugerTypes) Delete(ctx context.Context, name string, opts metav1.Dele
 		Resource("debugertypes").
 		Name(name).
 		Body(&opts).
-		Do(ctx).
+		Do().
 		Error()
 }
 
@@ -175,7 +175,7 @@ func (c *debugerTypes) DeleteCollection(ctx context.Context, opts metav1.DeleteO
 		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Body(&opts).
-		Do(ctx).
+		Do().
 		Error()
 }
 
@@ -189,7 +189,7 @@ func (c *debugerTypes) Patch(ctx context.Context, name string, pt types.PatchTyp
 		SubResource(subresources...).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(data).
-		Do(ctx).
+		Do().
 		Into(result)
 	return
 }

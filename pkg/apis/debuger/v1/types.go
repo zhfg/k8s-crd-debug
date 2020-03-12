@@ -10,7 +10,7 @@ type DebugerType struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	
+
 	// +optional
 	Status DebugerTypeStatus `json:"status,omitempty"`
 	// This is where you can define
@@ -18,9 +18,10 @@ type DebugerType struct {
 	Spec DebugerSpec `json:"spec,omitempty"`
 }
 
-// custom spec 
+// custom spec
 type DebugerSpec struct {
-	Message string `json:"message,omitempty"`
+	DeploymentName  string `json:"deploymentName,omitempty"`
+	ShareVolumeName string `json:"shareVolumeName, omitempty"`
 }
 
 // custom status

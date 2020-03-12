@@ -35,7 +35,7 @@ func main() {
 		klog.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	klog.Info(cfg)
+	// klog.Info(cfg)
 
 	kubeClient, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
@@ -57,7 +57,7 @@ func main() {
 
 	controller := NewController(kubeClient, exampleClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
-		exampleInformerFactory.Debuger().V1().DebugerTypes())
+		exampleInformerFactory.K8s().V1().DebugerTypes())
 
 	kubeInformerFactory.Start(stopCh)
 	exampleInformerFactory.Start(stopCh)
