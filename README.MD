@@ -1,6 +1,8 @@
 # 简介 
 Debugger是一个Kubernetes CRD项目，通过CRD controller 实现了向CRD中指定的deployment中附加一个Container.
-此项目使用了[kubernetes/code-generate]https://github.com/kubernetes/code-generate ，被用来生成部分结构代码.
+
+此项目使用了[kubernetes/code-generate]https://github.com/kubernetes/code-generate 被用来生成部分结构代码.
+
 代码编写过程中参考了
 https://itnext.io/how-to-generate-client-codes-for-kubernetes-custom-resource-definitions-crd-b4b9907769ba
 
