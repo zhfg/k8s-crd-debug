@@ -97,4 +97,85 @@ nginx-58f5b7bd88-z777x   1/1     Running   0          5h8m
 [root@kube01 ~]# kubectl get pods -n test
 NAME                     READY   STATUS    RESTARTS   AGE
 nginx-58f5b7bd88-z777x   2/2     Running   0          5h8m
+
+------------------------------------------------------------------------------------------
+[root@kube01 ~]# kubectl get deploy -n test nginx -o yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "4"
+  creationTimestamp: "2020-03-12T03:13:48Z"
+  generation: 4
+  labels:
+    run: nginx
+  name: nginx
+  namespace: test
+  resourceVersion: "4495552"
+  selfLink: /apis/apps/v1/namespaces/test/deployments/nginx
+  uid: 42419a34-17a2-43ca-b0e0-0c0b52dcfbac
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: nginx
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - image: theiaide/theia:0.16.1
+        imagePullPolicy: IfNotPresent
+        name: sidecar-theia
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data/
+          name: share-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: data
+      - emptyDir: {}
+        name: share-data
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2020-03-12T03:14:05Z"
+    lastUpdateTime: "2020-03-12T03:14:05Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2020-03-12T03:43:18Z"
+    lastUpdateTime: "2020-03-12T03:43:20Z"
+    message: ReplicaSet "nginx-58f5b7bd88" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 4
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+
 ```
