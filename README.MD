@@ -104,14 +104,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: "4"
+    deployment.kubernetes.io/revision: "5"
   creationTimestamp: "2020-03-12T03:13:48Z"
-  generation: 4
+  generation: 5
   labels:
     run: nginx
   name: nginx
   namespace: test
-  resourceVersion: "4495552"
+  resourceVersion: "4685409"
   selfLink: /apis/apps/v1/namespaces/test/deployments/nginx
   uid: 42419a34-17a2-43ca-b0e0-0c0b52dcfbac
 spec:
@@ -139,6 +139,9 @@ spec:
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: share-data
       - image: theiaide/theia:0.16.1
         imagePullPolicy: IfNotPresent
         name: sidecar-theia
@@ -168,14 +171,15 @@ status:
     status: "True"
     type: Available
   - lastTransitionTime: "2020-03-12T03:43:18Z"
-    lastUpdateTime: "2020-03-12T03:43:20Z"
-    message: ReplicaSet "nginx-58f5b7bd88" has successfully progressed.
+    lastUpdateTime: "2020-03-12T15:10:22Z"
+    message: ReplicaSet "nginx-6fb4677544" has successfully progressed.
     reason: NewReplicaSetAvailable
     status: "True"
     type: Progressing
-  observedGeneration: 4
+  observedGeneration: 5
   readyReplicas: 1
   replicas: 1
   updatedReplicas: 1
+
 
 ```
