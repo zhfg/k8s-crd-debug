@@ -34,3 +34,48 @@ spec:
   shareVolumeName: "share-data"
 ```
 
+# 验证
++ **在test namespaces下新建一个名称nginx的deployment
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: nginx
+  name: nginx
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: nginx
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+      - image: theiaide/theia:0.16.1
+        imagePullPolicy: IfNotPresent
+        name: sidecar-theia
+        volumeMounts:
+        - mountPath: /data/
+          name: share-data
+      volumes:
+      - emptyDir: {}
+        name: data
+      - emptyDir: {}
+        name: share-data
+```
++ **查看其pod中的container的数量
+```
+
+```
++ **稍等30秒，再次查看其Pod中的container的数量
