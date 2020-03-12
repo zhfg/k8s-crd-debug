@@ -6,6 +6,10 @@ https://itnext.io/how-to-generate-client-codes-for-kubernetes-custom-resource-de
 
 
 # 使用方法
+**运行**
+```
+./k8s-crd-debug -kubeconfig .kube/config
+```
 **新建CRD**
 ```
 apiVersion: apiextensions.k8s.io/v1beta1
